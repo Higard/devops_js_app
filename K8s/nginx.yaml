@@ -1,0 +1,40 @@
+# nginx.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bestnginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bestnginx
+  template:
+    metadata:
+      labels:
+        app: bestnginx
+    spec:
+      containers:
+        - name: nginx
+          image: higard/bestnginx:latest  # or replace with Docker Hub image
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bestnginx
+spec:
+  type: NodePort  # Changed to NodePort for Minikube
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: bestnginx
